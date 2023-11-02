@@ -6,11 +6,13 @@ postsRouter = require("./routes/posts");
 commentRouter = require("./routes/comment");
 const connect = require("./schemas");
 
-connect()
+connect();
 
 app.use(express.json());
 
-app.use("/api", [postsRouter, commentRouter]);
+app.use(express.static('public'));
+
+app.use("/api", [postsRouter]);
 
 //로그 관리하는 파일 따로 만들것임.
 app.listen(port, () => {

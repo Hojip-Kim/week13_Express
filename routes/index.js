@@ -1,17 +1,17 @@
-const express = require('express');
-const router = express.Router();
+// const express = require('express');
+// const router = express.Router();
 
-const Posts = require("../schemas/post.js");
+// const Posts = require("../schemas/post.js");
 
 
-router.post("/posts", async(req, res)=> {
-    const{title, username, password, detail} = req.body;
+// router.post("/posts", async(req, res)=> {
+//     const{title, username, password, detail} = req.body;
 
-    const createPosts = await Posts.create({ title, username, password, detail});
+//     const createPosts = await Posts.create({ title, username, password, detail});
 
-    res.json({ posts: createPosts });
-})
+//     res.json({ posts: createPosts });
+// })
 
-router.get("/")
+// router.get("/")
 
-module.exports = router;
+// module.exports = router;
