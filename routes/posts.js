@@ -11,17 +11,19 @@ const jwtMiddleware = require('./verify.js');
 
 router.post('/posts', jwtMiddleware, async (req, res) => {
   try {
-    const { title, username, password, detail } = req.body;
-    const userId = req.user._id;
+    const { title, password, detail } = req.body;
+    const userId = req.user.id;
+    const user = await Users.findOne({ _id: userId });
     const createPosts = await Posts.create({
       title,
       createdBy: userId,
-      username,
+      username: user.username,
       password,
       detail,
     });
     return res.json({ message: '게시글 생성 성공', createPosts: createPosts });
   } catch (error) {
+    console.log('에러:', error);
     res.status(500).json({ message: '서버 오류 발생', error });
   }
 });
@@ -30,7 +32,7 @@ router.post('/posts', jwtMiddleware, async (req, res) => {
 게시글 수정 API
 API를 호출할 때 입력된 비밀번호를 비교하여 동일할 때만 글이 수정되게 하기.
 */
-router.put('/posts/:postId', jwtMiddleware, async (req, res) => {
+router.patch('/posts/:postId', jwtMiddleware, async (req, res) => {
   try {
     const { postId } = req.params;
 
@@ -39,7 +41,7 @@ router.put('/posts/:postId', jwtMiddleware, async (req, res) => {
     let existPosts = await Posts.findOne({
       _id: postId,
     });
-    if (existPosts.createdBy !== req.user._id) {
+    if (existPosts.createdBy !== req.user.id) {
       return res.json({ message: '수정 권한이 없는 게시물' });
     }
 
@@ -50,6 +52,7 @@ router.put('/posts/:postId', jwtMiddleware, async (req, res) => {
     if (existPosts) {
       existPosts.detail = detail;
       existPosts.title = title;
+      existPosts.password = password;
       await existPosts.save();
       return res.json({
         message: '게시글 업데이트 성공',
@@ -73,21 +76,17 @@ router.delete('/posts/:postId', jwtMiddleware, async (req, res) => {
     // const { title, username, password, detail } = req.body; // delete를 한다면 백업데이터를 남겨놓아야함.
 
     let existPosts = await Posts.findOne({
-        _id: postId
+      _id: postId,
     });
 
-    if (existPosts.createdBy !== req.user._id) {
+    if (existPosts.createdBy !== req.user.id) {
       return res.json({ message: '삭제 권한이 없는 게시물' });
     }
 
-    if (existPosts.username !== req.user._id) {
-      res.json({ message: '삭제 권한이 없는 게시물' });
-    }
-
     if (existPosts) {
-      await Posts.deleteOne({ title });
+      await Posts.deleteOne({ _id: postId });
+      return res.json({ message: '게시글 삭제 성공' });
     }
-    return res.json({ message: '게시글 삭제 성공' });
   } catch (error) {
     res.status(500).json({ message: '서버 오류 발생' });
   }
@@ -101,7 +100,7 @@ router.delete('/posts/:postId', jwtMiddleware, async (req, res) => {
 router.get('/posts', async (req, res) => {
   try {
     const posts = await Posts.find();
-    res.json(posts);
+    res.json({ posts: posts });
   } catch (error) {
     res.status(500).json({ message: err.message });
   }
@@ -115,10 +114,9 @@ router.get('/posts/:username', jwtMiddleware, async (req, res) => {
   try {
     const { username } = req.params;
 
-    const userPosts = await Posts.find(
-      { username: String(username) },
-      { title: 1, username: 1, createAt: 1, detail: 1 }
-    );
+    const userPosts = await Posts.find({ username: username })
+      .sort({ createdAt: -1 })
+      .select({ _id: 0, title: 1, username: 1, createdAt: 1, detail: 1 });
 
     if (userPosts.length === 0) {
       return res
