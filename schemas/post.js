@@ -23,10 +23,6 @@ const postSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    ishide: {
-      type: Boolean,
-      default: false,
-    },
   },
 
   { timestamps: true }

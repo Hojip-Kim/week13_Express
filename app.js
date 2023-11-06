@@ -16,6 +16,7 @@ app.use(express.json());
 app.use(express.static('public'));
 app.use(cookieParser());
 
+
 app.use('/api', [postsRouter, commentRouter, userRouter, loginRouter]);
 
 //로그 관리하는 파일 따로 만들것임.

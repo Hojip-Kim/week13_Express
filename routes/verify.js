@@ -14,7 +14,7 @@ const jwtMiddleware = (req, res, next) => {
 
     next();
   } catch (error) {
-    res.status(401).json({ message: '유효하지 않은 토큰' });
+    res.status(500).json({ message: error.message });
   }
 };
 
