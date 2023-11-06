@@ -74,7 +74,7 @@ router.patch(
         });
       }
     } catch (error) {
-      res.status(500).json({ message: err.message });
+      res.status(500).json({ message: error.message });
     }
   }
 );
@@ -99,7 +99,7 @@ router.delete(
         res.status(400).json({ message: '해당 댓글이 없습니다.' });
       } else {
         await Comments.deleteOne({ post: postId, _id: commentId });
-        return res.json({message : "댓글 삭제 완료"});
+        return res.json({ message: '댓글 삭제 완료' });
       }
     } catch (error) {
       res.status(500).json({ message: err.message });

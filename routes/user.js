@@ -3,6 +3,14 @@ const router = express.Router();
 
 const Users = require('../schemas/user.js');
 
+const bcrypt = require('bcrypt');
+
+async function hashPassword(password) {
+  const saltRounds = 10;
+  const hashedPassword = await bcrypt.hash(password, saltRounds);
+  return hashedPassword;
+}
+
 router.post('/user', async (req, res) => {
   const { username, password, checkPassword, nickname } = req.body;
 
@@ -14,9 +22,10 @@ router.post('/user', async (req, res) => {
     validateNickname(nickname) &&
     validatePassword(nickname, password, checkPassword)
   ) {
+    const hashedPassword = await hashPassword(password);
     const createUsers = await Users.create({
       username,
-      password,
+      password: hashedPassword,
       nickname,
     });
     return res

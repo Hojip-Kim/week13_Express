@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Users = require('../schemas/user.js');
 const Posts = require('../schemas/post.js');
+const Comments = require('../schemas/comment.js');
 const jwtMiddleware = require('./verify.js');
 
 /*
@@ -36,7 +37,7 @@ router.patch('/posts/:postId', jwtMiddleware, async (req, res) => {
   try {
     const { postId } = req.params;
 
-    const { title, detail, password } = req.body;
+    const { title, detail } = req.body;
 
     let existPosts = await Posts.findOne({
       _id: postId,
@@ -45,14 +46,9 @@ router.patch('/posts/:postId', jwtMiddleware, async (req, res) => {
       return res.json({ message: '수정 권한이 없는 게시물' });
     }
 
-    if (existPosts.password !== password) {
-      return res.json({ message: '게시물의 비밀번호를 확인해주세요.' });
-    }
-
     if (existPosts) {
       existPosts.detail = detail;
       existPosts.title = title;
-      existPosts.password = password;
       await existPosts.save();
       return res.json({
         message: '게시글 업데이트 성공',
@@ -110,6 +106,19 @@ router.get('/posts', async (req, res) => {
 게시글 조회 API
 제목, 작성자명, 작성 날짜, 작성 내용을 조회하기
 */
+
+router.get('/posts/:postId', jwtMiddleware, async (req, res) => {
+  try {
+    const { postId } = req.params;
+
+    const Post = await Posts.findOne({ _id: postId });
+    const comments = await Comments.find({ post: postId });
+    return res.status(200).json({ Post: Post, Comments: comments });
+  } catch (error) {
+    return res.status(500).json({ message: '서버 에러' });
+  }
+});
+
 router.get('/posts/:username', jwtMiddleware, async (req, res) => {
   try {
     const { username } = req.params;
