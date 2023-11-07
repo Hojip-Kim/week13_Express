@@ -44,5 +44,10 @@ https://web.postman.co/documentation/27130625-78bb25a1-6a9c-4252-b81b-f0fda392ff
 <h3>ERD</h3>
 
 
+---
+
+http://3.38.93.118:3000/api/posts
+
+
 ![스크린샷 2023-11-07 오전 5 24 12](https://github.com/Hojip-Kim/week13_Express/assets/101489057/29fea3b8-671f-4a4d-abaf-71a7eaeb13f8)
 
